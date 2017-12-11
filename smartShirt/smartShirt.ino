@@ -11,6 +11,7 @@
 #define analogIn A0
 #define B D0
 #define A D1
+#define strobe D5
 
 #define TESTFILE "/values.txt"
 
@@ -35,7 +36,9 @@ void loop() {
   Serial.println("Iniciando lectura sensores. C1");
   digitalWrite(A,LOW);
   digitalWrite(B,HIGH);
+  digitalWrite(strobe,LOW);
   readValue[0]=analogRead(analogIn);
+  digitalWrite(strobe,HIGH);
   Serial.println(readValue[0]);
   delay(100);
   
@@ -43,7 +46,9 @@ void loop() {
   Serial.println("Iniciando lectura sensores. C3");
   //digitalWrite(A,LOW); //JUST INFO
   digitalWrite(B,LOW);
+  digitalWrite(strobe,LOW);
   readValue[1]=analogRead(analogIn);
+  digitalWrite(strobe,HIGH);
   Serial.println(readValue[1]);
   delay(100);
   
@@ -51,7 +56,9 @@ void loop() {
   Serial.println("Iniciando lectura sensores. C2");  
   digitalWrite(A,HIGH);
   //digitalWrite(B,LOW);
+  digitalWrite(strobe,LOW);
   readValue[2]=analogRead(analogIn); 
+  digitalWrite(strobe,HIGH);
   Serial.println(readValue[2]);
   delay(100);
 
