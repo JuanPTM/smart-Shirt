@@ -9,7 +9,7 @@
 #define WIFI_PASSWORD "ef96da80a978"
 
 #define analogIn A0
-#define B D0
+#define B D2
 #define A D1
 #define strobe D5
 
