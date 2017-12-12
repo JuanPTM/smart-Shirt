@@ -5,8 +5,8 @@
 // Set these to run example.
 #define FIREBASE_HOST "testw-8b1b6.firebaseio.com"
 #define FIREBASE_AUTH "uRwL0OL0ICuAPBw7HKn0rgyMmCQnRrrp3MKnCfau"
-#define WIFI_SSID "pods"
-#define WIFI_PASSWORD "ef96da80a978"
+#define WIFI_SSID "proyectos"
+#define WIFI_PASSWORD "pro14YECTOS++"
 
 #define analogIn A0
 #define B D2
@@ -15,69 +15,100 @@
 
 #define TESTFILE "/values.txt"
 
-int readValue[] = {0,0,0};
 bool    spiffsActive = false;
+int readValue[] = {
+  0,0,0,0};  
+
+// digital values to control 4 inputs
+int b_bin[]={LOW,LOW,HIGH,HIGH};
+int a_bin[]={LOW,HIGH,LOW,HIGH};
+
+//aux
+int contador=0;
+int entrada=0;
+int b_val=0;
+int a_val=0;
 
 void setup() {
   // put your setup code here, to run once:
   pinMode(A,OUTPUT);
   pinMode(B,OUTPUT);
+  pinMode(strobe, OUTPUT);
+
   Serial.begin(9600);
-  if (SPIFFS.begin()) {
+/*  if (SPIFFS.begin()) {
     Serial.println("SPIFFS Active");
     spiffsActive = true;
+  }*/
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
   }
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+
+  
 }
 
 void loop() {
   
-  // put your main code here, to run repeatedly:
-  Serial.println("---------------------------");
-  Serial.println("Iniciando lectura sensores. C1");
-  digitalWrite(A,LOW);
-  digitalWrite(B,HIGH);
-  digitalWrite(strobe,LOW);
-  readValue[0]=analogRead(analogIn);
-  digitalWrite(strobe,HIGH);
-  Serial.println(readValue[0]);
-  delay(100);
-  
-  Serial.println("---------------------------");
-  Serial.println("Iniciando lectura sensores. C3");
-  //digitalWrite(A,LOW); //JUST INFO
-  digitalWrite(B,LOW);
-  digitalWrite(strobe,LOW);
-  readValue[1]=analogRead(analogIn);
-  digitalWrite(strobe,HIGH);
-  Serial.println(readValue[1]);
-  delay(100);
-  
-  Serial.println("---------------------------");
-  Serial.println("Iniciando lectura sensores. C2");  
-  digitalWrite(A,HIGH);
-  //digitalWrite(B,LOW);
-  digitalWrite(strobe,LOW);
-  readValue[2]=analogRead(analogIn); 
-  digitalWrite(strobe,HIGH);
-  Serial.println(readValue[2]);
-  delay(100);
+  for(entrada=0;entrada<=3;entrada++) {
 
+    //select mux input
+    a_val=a_bin[entrada];
+    b_val=b_bin[entrada];
 
-  if (readValue[0]< 950 or readValue[1]<950 or readValue[2]<950)
+    digitalWrite(A,a_val);
+    digitalWrite(B,b_val);
+
+    //strobe LOW to read
+    digitalWrite(strobe,LOW);
+
+    //read value
+    readValue[entrada] = analogRead(analogIn);  // read input value
+
+    //strobe HIGH to avoid jitters
+    digitalWrite(strobe,HIGH);
+  }
+  
+  Serial.print("Valores leidos: ");
+  Serial.print(readValue[0]);
+  Serial.print(" ");
+  Serial.print(readValue[1]);
+  Serial.print(" ");
+  Serial.print(readValue[2]);
+  Serial.println(" .");
+
+  if (readValue[0]<850 || readValue[1]<850 || readValue[2]<850)
   {
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    Serial.println("LLEGA AL WIFI");
+    if( !(WiFi.status() == WL_CONNECTED))
+    {
+      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+      contador = 0;
+      while(contador < 20)
+      {
+        delay(500);
+        Serial.print(".");
+        contador++;
+        yield();
+      }
+    }
     if (WiFi.status() == WL_CONNECTED)
     {
       Serial.print("connected: ");
       Serial.println(WiFi.localIP());
-      Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
       Firebase.setString(String(millis()),String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
+      Serial.println("Enviado valor a FIREBASE");
       if (Firebase.failed()) 
       {
         Serial.print("setting /message failed:");
         Serial.println(Firebase.error());  
         return;
       }
+      delay(100);
+
       //TODO AÑADIR VOLCADO DEL FICHERO A BBDD y borrar fichero
     }else
     {
