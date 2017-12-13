@@ -16,6 +16,7 @@
 #define TESTFILE "/values.txt"
 
 bool    spiffsActive = false;
+bool connFirebase = false;
 int readValue[] = {
   0,0,0,0};  
 
@@ -36,19 +37,10 @@ void setup() {
   pinMode(strobe, OUTPUT);
 
   Serial.begin(9600);
-/*  if (SPIFFS.begin()) {
+  if (SPIFFS.begin()) {
     Serial.println("SPIFFS Active");
     spiffsActive = true;
-  }*/
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print("connecting");
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(500);
-  }
-  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
-
-  
+  }  
 }
 
 void loop() {
@@ -92,13 +84,16 @@ void loop() {
         delay(500);
         Serial.print(".");
         contador++;
-        yield();
       }
     }
     if (WiFi.status() == WL_CONNECTED)
     {
       Serial.print("connected: ");
       Serial.println(WiFi.localIP());
+      if (!connFirebase){
+          Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+          connFirebase = true;
+      }
       Firebase.setString(String(millis()),String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
       Serial.println("Enviado valor a FIREBASE");
       if (Firebase.failed()) 
@@ -110,7 +105,7 @@ void loop() {
       delay(100);
 
       //TODO AÑADIR VOLCADO DEL FICHERO A BBDD y borrar fichero
-    }else
+    }else 
     {
       if (spiffsActive)
       {
@@ -118,6 +113,17 @@ void loop() {
           File f = SPIFFS.open(TESTFILE, "a");
           if (f) {
             f.println(String(millis())+"/"+String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
+            Serial.println("Escrito en fichero= "+ String(millis())+"/"+String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
+          }else
+          {
+            Serial.println("Error al abrir el fichero.");
+          }
+        }else{
+          Serial.println("No echiste,creando");
+          File f = SPIFFS.open(TESTFILE, "w");
+          if (f) {
+            f.println(String(millis())+"/"+String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
+            Serial.println("Escrito en fichero= "+ String(millis())+"/"+String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
           }else
           {
             Serial.println("Error al abrir el fichero.");
