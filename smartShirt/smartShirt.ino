@@ -104,7 +104,40 @@ void loop() {
       }
       delay(100);
 
-      //TODO AÑADIR VOLCADO DEL FICHERO A BBDD y borrar fichero
+      if (spiffsActive)
+      {
+        if (SPIFFS.exists(TESTFILE)) {
+          File f = SPIFFS.open(TESTFILE, "r");
+          if (f) {
+            String key;
+            String value;
+            while (f.position()<f.size())
+            {
+              key=f.readStringUntil('/');
+              key.trim();
+              value=f.readStringUntil('\n');
+              value.trim();
+              Serial.println(key+value);
+              yield();
+              Firebase.setString(String(millis()),String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
+              Serial.println("Enviado valor a FIREBASE");
+              if (Firebase.failed()) 
+              {
+                Serial.print("setting /message failed:");
+                Serial.println(Firebase.error());  
+                return;
+              }
+              delay(100);
+              yield();
+            } 
+            f.close();
+            SPIFFS.remove(TESTFILE);
+          }else
+          {
+            Serial.println("Error al abrir el fichero.");
+          }
+        }
+      }
     }else 
     {
       if (spiffsActive)
