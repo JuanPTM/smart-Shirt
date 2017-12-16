@@ -19,9 +19,6 @@ DSN = 'https://testw-8b1b6.firebaseio.com/'
 EMAIL = 'ibarbech@alumnos.unex.es'
 TOKEN = '508897766:AAGBYHFEFhXaUGo4vDFLwG39sSSEedK9v9E'
 
-files=[
-	"https://www.unex.es/organizacion/servicios-universitarios/servicios/servicio_recursos_humanos/funciones/convpci",
-]
 bot = telebot.TeleBot(TOKEN)
 list_chat_id = []
 data = {}
