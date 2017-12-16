@@ -94,7 +94,7 @@ void loop() {
           Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
           connFirebase = true;
       }
-      Firebase.setString(String(millis()),String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
+      Firebase.pushString("",String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
       Serial.println("Enviado valor a FIREBASE");
       if (Firebase.failed()) 
       {
@@ -119,7 +119,7 @@ void loop() {
               value.trim();
               Serial.println(key+value);
               yield();
-              Firebase.setString(String(millis()),String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
+              Firebase.pushString("",String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
               Serial.println("Enviado valor a FIREBASE");
               if (Firebase.failed()) 
               {
