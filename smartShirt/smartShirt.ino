@@ -5,8 +5,8 @@
 // Set these to run example.
 #define FIREBASE_HOST "testw-8b1b6.firebaseio.com"
 #define FIREBASE_AUTH "uRwL0OL0ICuAPBw7HKn0rgyMmCQnRrrp3MKnCfau"
-#define WIFI_SSID "proyectos"
-#define WIFI_PASSWORD "pro14YECTOS++"
+#define WIFI_SSID "proyectos1"
+#define WIFI_PASSWORD "proyectos"
 
 #define analogIn A0
 #define B D2
