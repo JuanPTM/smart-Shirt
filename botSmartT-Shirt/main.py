@@ -12,7 +12,7 @@ from firebase.firebase import FirebaseApplication, FirebaseAuthentication
 import time
 import datetime
 import numpy as np
-import pylab as pl
+import matplotlib.pyplot as pl
 
 SECRET = 'uRwL0OL0ICuAPBw7HKn0rgyMmCQnRrrp3MKnCfau'
 DSN = 'https://testw-8b1b6.firebaseio.com/'
@@ -69,7 +69,7 @@ def handle_getGraphic(message):
 		else:
 			dictGraph[datetime.date(date.tm_year,date.tm_mon,date.tm_mday)]=1
 	keys = dictGraph.keys()
-	sorted(dictGraph)
+	keys.sort()
 	x = []
 	y = []
 	nday=0
@@ -86,10 +86,10 @@ def handle_getGraphic(message):
 	pl.bar(x, y, facecolor='green', alpha=0.75)
     # pl.show()
 	pl.savefig('/tmp/photo.png')
-	photo = open('/tmp/photo.png', 'rb')
-	for chat_id in list_chat_id:
-		bot.send_photo(chat_id, photo)
-		bot.send_photo(chat_id, "FILEID")
+	with open('/tmp/photo.png', 'rb') as photo:
+		print message.from_user.id
+		pl.close()
+		bot.send_photo(message.from_user.id, photo)
 	pass
 
 @bot.message_handler(func=lambda message: True)
@@ -99,9 +99,10 @@ def echo_all(message):
 def worker(bot):
     bot.polling()
 
+t = threading.Thread(target=worker, args=(bot,))
+t.start()
+
 if __name__ == '__main__':
-	t = threading.Thread(target=worker, args=(bot,))
-	t.start()
 
 	authentication = FirebaseAuthentication(SECRET,EMAIL,True)
 	firebase = FirebaseApplication(DSN, authentication)
