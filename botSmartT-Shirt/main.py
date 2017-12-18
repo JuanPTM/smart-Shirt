@@ -20,34 +20,43 @@ EMAIL = 'ibarbech@alumnos.unex.es'
 TOKEN = '508897766:AAGBYHFEFhXaUGo4vDFLwG39sSSEedK9v9E'
 
 bot = telebot.TeleBot(TOKEN)
-list_chat_id = []
 data = {}
-
+subcribe = {}
 
 try:
 	with open("idchats.txt", 'rb') as fichero:
-	    list_chat_id = pickle.load(fichero)
+	    subcribe = pickle.load(fichero)
 except Exception as e:
 	with open("idchats.txt", 'wb') as fichero:
-		pickle.dump(list_chat_id, fichero,0)
+		pickle.dump(subcribe, fichero,0)
 
 
 @bot.message_handler(commands=['start', 'help'])
 def handle_start_help(message):
-    if list_chat_id.count(message.from_user.id) is 0:
-        print "anadiendo"
-        list_chat_id.append(message.from_user.id)
-        with open("idchats.txt", 'wb') as fichero:
-            pickle.dump(list_chat_id, fichero,0)
+        if message.from_user.id in subcribe.keys():
+		print "anadiendo"
+		subcribe[message.from_user.id] = True
+		with open("idchats.txt", 'wb') as fichero:
+			pickle.dump(subcribe, fichero,0)
+	bot.reply_to(message, "Howdy, how are you doing?\n\t/help\n\t/exit\n\t/getGraphic\n\t/subcribe\n\t/unsubcribe")
 
-    bot.reply_to(message, "Howdy, how are you doing?\n\t/help\n\t/exit\n\t/getGraphic")
+@bot.message_handler(commands=['unsubcribe'])
+def handle_unsubcribe(message):
+	subcribe[message.from_user.id]=False
+	with open("idchats.txt", 'wb') as fichero:
+		pickle.dump(subcribe, fichero,0)
 
+@bot.message_handler(commands=['subcribe'])
+def handle_subcribe(message):
+	subcribe[message.from_user.id]=True
+	with open("idchats.txt", 'wb') as fichero:
+		pickle.dump(subcribe, fichero,0)
 @bot.message_handler(commands=['exit'])
 def handle_exit(message):
-    list_chat_id.remove(message.from_user.id)
-    with open("idchats.txt", 'wb') as fichero:
-        pickle.dump(list_chat_id, fichero,0)
-        bot.reply_to(message, "Hasta la proxima!!!")
+	del subcribe[message.from_user.id]
+        with open("idchats.txt", 'wb') as fichero:
+                pickle.dump(subcribe, fichero,0)
+                bot.reply_to(message, "Hasta la proxima!!!")
 
 def keyToTimeStamp(key):
         PUSH_CHARS ='-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz'
@@ -114,7 +123,8 @@ if __name__ == '__main__':
 			pickle.dump(data, fichero,0)
 	while True:
 		result = firebase.get('/', None)
-		if len(data.keys()) != len(result.keys()):
-			data = result
-			for chatid in list_chat_id:
-				bot.send_message(chatid, "Ponte recto")
+		if len(data.keys()) < len(result.keys()):
+			for chatid in subcribe.keys():
+				if subcribe[chatid]:
+					bot.send_message(chatid, "Ponte recto")
+		data = result
