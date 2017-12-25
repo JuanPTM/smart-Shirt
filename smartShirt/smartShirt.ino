@@ -15,6 +15,16 @@
 
 #define TESTFILE "/values.txt"
 
+//#define DEBUG       --- UNCOMENT FOR DEBUG PORPUSE
+
+#ifdef DEBUG
+ #define DEBUG_PRINT(x)     Serial.print(x)
+ #define DEBUG_PRINTLN(x)  Serial.println(x)
+#else
+ #define DEBUG_PRINT(x)
+ #define DEBUG_PRINTLN(x)
+#endif 
+
 bool    spiffsActive = false;
 bool connFirebase = false;
 int readValue[] = {
@@ -38,7 +48,7 @@ void setup() {
 
   Serial.begin(9600);
   if (SPIFFS.begin()) {
-    Serial.println("SPIFFS Active");
+    DEBUG_PRINTLN("SPIFFS Active");
     spiffsActive = true;
   }  
 }
@@ -64,17 +74,17 @@ void loop() {
     digitalWrite(strobe,HIGH);
   }
   
-  Serial.print("Valores leidos: ");
-  Serial.print(readValue[0]);
-  Serial.print(" ");
-  Serial.print(readValue[1]);
-  Serial.print(" ");
-  Serial.print(readValue[2]);
-  Serial.println(" .");
+  DEBUG_PRINT("Valores leidos: ");
+  DEBUG_PRINT(readValue[0]);
+  DEBUG_PRINT(" ");
+  DEBUG_PRINT(readValue[1]);
+  DEBUG_PRINT(" ");
+  DEBUG_PRINT(readValue[2]);
+  DEBUG_PRINTLN(" .");
 
   if (readValue[0]<850 || readValue[1]<850 || readValue[2]<850)
   {
-    Serial.println("LLEGA AL WIFI");
+    DEBUG_PRINTLN("LLEGA AL WIFI");
     if( !(WiFi.status() == WL_CONNECTED))
     {
       WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -82,24 +92,24 @@ void loop() {
       while(contador < 20)
       {
         delay(500);
-        Serial.print(".");
+        DEBUG_PRINT(".");
         contador++;
       }
     }
     if (WiFi.status() == WL_CONNECTED)
     {
-      Serial.print("connected: ");
-      Serial.println(WiFi.localIP());
+      DEBUG_PRINT("connected: ");
+      DEBUG_PRINTLN(WiFi.localIP());
       if (!connFirebase){
           Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
           connFirebase = true;
       }
       Firebase.pushString("",String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
-      Serial.println("Enviado valor a FIREBASE");
+      DEBUG_PRINTLN("Enviado valor a FIREBASE");
       if (Firebase.failed()) 
       {
-        Serial.print("setting /message failed:");
-        Serial.println(Firebase.error());  
+        DEBUG_PRINT("setting /message failed:");
+        DEBUG_PRINTLN(Firebase.error());  
         return;
       }
       delay(100);
@@ -117,14 +127,14 @@ void loop() {
               key.trim();
               value=f.readStringUntil('\n');
               value.trim();
-              Serial.println(key+value);
+              DEBUG_PRINTLN(key+value);
               yield();
               Firebase.pushString("",String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
-              Serial.println("Enviado valor a FIREBASE");
+              DEBUG_PRINTLN("Enviado valor a FIREBASE");
               if (Firebase.failed()) 
               {
-                Serial.print("setting /message failed:");
-                Serial.println(Firebase.error());  
+                DEBUG_PRINT("setting /message failed:");
+                DEBUG_PRINTLN(Firebase.error());  
                 return;
               }
               delay(100);
@@ -134,7 +144,7 @@ void loop() {
             SPIFFS.remove(TESTFILE);
           }else
           {
-            Serial.println("Error al abrir el fichero.");
+            DEBUG_PRINTLN("Error al abrir el fichero.");
           }
         }
       }
@@ -146,25 +156,25 @@ void loop() {
           File f = SPIFFS.open(TESTFILE, "a");
           if (f) {
             f.println(String(millis())+"/"+String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
-            Serial.println("Escrito en fichero= "+ String(millis())+"/"+String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
+            DEBUG_PRINTLN("Escrito en fichero= "+ String(millis())+"/"+String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
           }else
           {
-            Serial.println("Error al abrir el fichero.");
+            DEBUG_PRINTLN("Error al abrir el fichero.");
           }
         }else{
-          Serial.println("No echiste,creando");
+          DEBUG_PRINTLN("No echiste,creando");
           File f = SPIFFS.open(TESTFILE, "w");
           if (f) {
             f.println(String(millis())+"/"+String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
-            Serial.println("Escrito en fichero= "+ String(millis())+"/"+String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
+            DEBUG_PRINTLN("Escrito en fichero= "+ String(millis())+"/"+String(readValue[0])+"/"+String(readValue[1])+"/"+String(readValue[2]));
           }else
           {
-            Serial.println("Error al abrir el fichero.");
+            DEBUG_PRINTLN("Error al abrir el fichero.");
           }
         }
       }else
       {
-        Serial.println("SPIFFS NO ESTA FUNCIONANDO");
+        DEBUG_PRINTLN("SPIFFS NO ESTA FUNCIONANDO");
       }
     }
   }
