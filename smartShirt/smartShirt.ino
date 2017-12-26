@@ -1,6 +1,10 @@
+#define DEBUG 1
+#include "DebugUtils.h"
+
 #include <ESP8266WiFi.h>
 #include <FirebaseArduino.h>
 #include "FS.h"
+
 
 // Set these to run example.
 #define FIREBASE_HOST "testw-8b1b6.firebaseio.com"
@@ -14,16 +18,6 @@
 #define strobe D5
 
 #define TESTFILE "/values.txt"
-
-//#define DEBUG       --- UNCOMENT FOR DEBUG PORPUSE
-
-#ifdef DEBUG
- #define DEBUG_PRINT(x)     Serial.print(x)
- #define DEBUG_PRINTLN(x)  Serial.println(x)
-#else
- #define DEBUG_PRINT(x)
- #define DEBUG_PRINTLN(x)
-#endif 
 
 bool    spiffsActive = false;
 bool connFirebase = false;
