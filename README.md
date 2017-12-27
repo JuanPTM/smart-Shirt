@@ -18,7 +18,7 @@ Dependencies
 ----
 Contact
 ----
-Feel free to contact with any doubt.
+Feel free to contact if you have any doubt.
 
   [2]: https://github.com/firebase/firebase-arduino
   [3]: https://s-computing.blogspot.com.es/2017/10/smart-t-shirt.html
